@@ -47,7 +47,8 @@ android {
 }
 
 dependencies {
-    implementation 'com.flybits.android:concierge:6.0.0-alpha4'
+//    implementation 'com.flybits.android:concierge:6.0.0-alpha4'
+    implementation 'com.flybits.android:concierge:6.0.0-alpha18'
 //    implementation 'com.flybits.android:concierge:4.5.0'
 //    implementation 'com.flybits.android:context:4.5.0'
 //    implementation 'com.flybits.android:kernel:4.5.0'
@@ -58,7 +59,9 @@ dependencies {
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
+    implementation "androidx.fragment:fragment-ktx:1.4.1"
     implementation 'androidx.activity:activity-compose:1.3.1'
+    implementation "androidx.compose.ui:ui-viewbinding:1.3.1"
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation 'androidx.compose.material3:material3:1.0.0-alpha11'
