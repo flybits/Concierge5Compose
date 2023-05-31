@@ -49,14 +49,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val context = this
-        init(context)
-//        val supportFragmentManager = this.getActivity()?.supportFragmentManager!!
+        init(context)//Should init this in Application class
         setContent {
             Concierge5ComposeTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     Greeting("Android")
-
                 }
             }
         }
@@ -66,14 +64,9 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun Greeting(name: String) {
 
-//    val context = LocalContext.current
-
     Column() {
-
         val context = LocalContext.current
         val activity = context.getActivity()
-
-//        Text(text = "Hello $name!")
 
         Row() {
             Button(onClick = {
@@ -84,7 +77,6 @@ fun Greeting(name: String) {
                 Text(text = "Connect to Flybits")
             }
             Button(onClick = {
-
                 Concierge.disconnect(context, object : BasicResultCallback {
                     override fun onException(exception: FlybitsException) {
                         println("test315 disconnected onSuccess")
@@ -103,17 +95,28 @@ fun Greeting(name: String) {
 
 
         activity?.supportFragmentManager?.let { fragmentManager ->
+            /***
+             * Example to display a Banner view
+             */
 //            FragmentContainer(fragmentManager = fragmentManager, commit = {
 //                add(it, c4Banner(context))
 //            })
+            /***
+             * Example to display a Expose view
+             */
 //            FragmentContainer(fragmentManager = fragmentManager, commit = {
 //                C4Expose(context)
 //            })
-
-//                        FragmentContainer(modifier = Modifier, fragmentManager = fragmentManager, commit = {
+            /***
+             * Example to display a common List view
+             */
+//            FragmentContainer(modifier = Modifier, fragmentManager = fragmentManager, commit = {
 //                add(it, c4Fragment(context))
 //            })
 
+            /***
+             * Example to display a C5 view
+             */
             FragmentContainer(modifier = Modifier, fragmentManager = fragmentManager, commit = {
                 add(it, C5Fragment(context))
             })
@@ -122,6 +125,9 @@ fun Greeting(name: String) {
     }
 }
 
+/***
+ * Display a fragment into a Compose
+ */
 @Composable
 fun FragmentContainer(modifier: Modifier = Modifier, fragmentManager: FragmentManager,
         commit: FragmentTransaction.(containerId: Int) -> Unit) {
@@ -177,10 +183,13 @@ fun C5Fragment(applicationContext: Context): Fragment {
 fun init(context: Context) {
     Concierge.setLoggingVerbosity(VerbosityLevel.ALL)
     val configurationBuilder = FlybitsConciergeConfiguration.Builder(context)
-            .setProjectId("35F6A9F5-579B-4229-815C-7D994CD50F9C").setGatewayUrl("https://api.demo.flybits.com")
-            .setWebService("localhost:3000").build()
+            .setProjectId("35F6A9F5-579B-4229-815C-7D994CD50F9C")
+            .setGatewayUrl("https://api.demo.flybits.com")
+            .setWebService("localhost:3000")
+            .build()
     Concierge.configure(configurationBuilder, emptyList(), context)
 }
+
 fun connect(context: Context) {
     Concierge.connect(context, AnonymousConciergeIDP(), basicResultCallback = object : BasicResultCallback {
         override fun onException(exception: FlybitsException) {
