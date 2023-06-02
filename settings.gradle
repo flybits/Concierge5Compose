@@ -6,6 +6,8 @@ pluginManagement {
         maven {
             url "https://flybits.jfrog.io/artifactory/android-repo/"
         }
+
+
     }
 }
 dependencyResolutionManagement {
@@ -15,6 +17,9 @@ dependencyResolutionManagement {
         mavenCentral()
         maven {
             url "https://flybits.jfrog.io/artifactory/android-repo/"
+        }
+        maven {
+            url "https://flybits.jfrog.io/artifactory/v3/"
         }
     }
 }

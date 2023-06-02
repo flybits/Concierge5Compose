@@ -118,7 +118,7 @@ fun Greeting(name: String) {
              * Example to display a C5 view
              */
             FragmentContainer(modifier = Modifier, fragmentManager = fragmentManager, commit = {
-                add(it, C5Fragment(context))
+                add(it, c4Fragment(context))
             })
         }
 
@@ -183,8 +183,8 @@ fun C5Fragment(applicationContext: Context): Fragment {
 fun init(context: Context) {
     Concierge.setLoggingVerbosity(VerbosityLevel.ALL)
     val configurationBuilder = FlybitsConciergeConfiguration.Builder(context)
-            .setProjectId("35F6A9F5-579B-4229-815C-7D994CD50F9C")
-            .setGatewayUrl("https://api.demo.flybits.com")
+            .setProjectId(project_id)
+            .setGatewayUrl(gateway_url)
             .setWebService("localhost:3000")
             .build()
     Concierge.configure(configurationBuilder, emptyList(), context)
