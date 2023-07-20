@@ -8,9 +8,14 @@ import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -18,9 +23,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.fragment.app.*
@@ -64,7 +76,24 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun Greeting(name: String) {
 
-    Column() {
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(
+                    available: Offset,
+                    source: NestedScrollSource
+            ): Offset {
+                return Offset.Zero
+            }
+        }
+    }
+
+    Column(
+            modifier = Modifier
+                    .background(Color.LightGray)
+                    .size(100.dp)
+                    .nestedScroll(nestedScrollConnection)
+                    .verticalScroll(rememberScrollState())
+    ) {
         val context = LocalContext.current
         val activity = context.getActivity()
 
@@ -91,8 +120,8 @@ fun Greeting(name: String) {
             }
         }
 
-
-
+        Text(stringResource(id = R.string.aLongText), modifier = Modifier.padding(2.dp))
+        Text(stringResource(id = R.string.aLongText), modifier = Modifier.padding(2.dp))
 
         activity?.supportFragmentManager?.let { fragmentManager ->
             /***
@@ -122,6 +151,28 @@ fun Greeting(name: String) {
             })
         }
 
+//        repeat(100) {
+
+            Text(stringResource(id = R.string.aLongText), modifier = Modifier.padding(2.dp))
+            Text(stringResource(id = R.string.aLongText), modifier = Modifier.padding(2.dp))
+            Text(stringResource(id = R.string.aLongText), modifier = Modifier.padding(2.dp))
+//        }
+
+    }
+}
+
+
+@Composable
+private fun ScrollBoxes() {
+    Column(
+            modifier = Modifier
+                    .background(Color.LightGray)
+                    .size(100.dp)
+                    .verticalScroll(rememberScrollState())
+    ) {
+        repeat(10) {
+            Text("Item $it", modifier = Modifier.padding(2.dp))
+        }
     }
 }
 
@@ -173,7 +224,11 @@ fun c4Fragment(applicationContext: Context): Fragment {
 fun C5Fragment(applicationContext: Context): Fragment {
     return Concierge.fragment(applicationContext,
             Container.Configured,
-            arrayListOf(),
+//            arrayListOf(ConciergeParams.ZonesFilter(Concierge.zonesConfiguration(applicationContext, listOf("carousel")
+//            ))),
+
+            arrayListOf(ConciergeParams.ZonesFilter(Concierge.zonesConfiguration(applicationContext, listOf("landerpage")
+            ))),
             arrayListOf(ConciergeOptions.DisplayNavigation("c5 content showing here"),
                     ConciergeOptions.Settings,
                     ConciergeOptions.Notifications)
@@ -182,11 +237,14 @@ fun C5Fragment(applicationContext: Context): Fragment {
 
 fun init(context: Context) {
     Concierge.setLoggingVerbosity(VerbosityLevel.ALL)
+
+
     val configurationBuilder = FlybitsConciergeConfiguration.Builder(context)
-            .setProjectId("35F6A9F5-579B-4229-815C-7D994CD50F9C")
-            .setGatewayUrl("https://api.demo.flybits.com")
-            .setWebService("localhost:3000")
+            .setProjectId("81A5A577-E2FC-4B68-9977-04C22B09B1F9")
+            .setGatewayUrl("https://api.tdunmndb289.flybits.com")
+            .setWebService("https://static-files-concierge.tdunmndb289.flybits.com/latest")
             .build()
+
     Concierge.configure(configurationBuilder, emptyList(), context)
 }
 
