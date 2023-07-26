@@ -12,6 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -146,7 +147,7 @@ fun Greeting(name: String) {
             /***
              * Example to display a C5 view
              */
-            FragmentContainer(modifier = Modifier, fragmentManager = fragmentManager, commit = {
+            FragmentContainer(modifier = Modifier.height(300.dp), fragmentManager = fragmentManager, commit = {
                 add(it, C5Fragment(context))
             })
         }
@@ -227,7 +228,7 @@ fun C5Fragment(applicationContext: Context): Fragment {
 //            arrayListOf(ConciergeParams.ZonesFilter(Concierge.zonesConfiguration(applicationContext, listOf("carousel")
 //            ))),
 
-            arrayListOf(ConciergeParams.ZonesFilter(Concierge.zonesConfiguration(applicationContext, listOf("landerpage")
+            arrayListOf(ConciergeParams.ZonesFilter(Concierge.zonesConfiguration(applicationContext, listOf("carousel")
             ))),
             arrayListOf(ConciergeOptions.DisplayNavigation("c5 content showing here"),
                     ConciergeOptions.Settings,
