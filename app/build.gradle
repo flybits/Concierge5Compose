@@ -48,7 +48,7 @@ android {
 
 dependencies {
 //    implementation 'com.flybits.android:concierge:6.0.0-alpha4'
-    implementation 'com.flybits.android:concierge:6.0.0-alpha37'
+    implementation 'com.flybits.android:concierge:5.0.7-rc6'
 //    implementation 'com.flybits.android:concierge:4.5.0'
 //    implementation 'com.flybits.android:context:4.5.0'
 //    implementation 'com.flybits.android:kernel:4.5.0'
