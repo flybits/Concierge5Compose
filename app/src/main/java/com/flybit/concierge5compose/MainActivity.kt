@@ -3,6 +3,7 @@ package com.flybit.concierge5compose
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
@@ -50,6 +51,7 @@ import com.flybits.concierge.enums.Container
 import com.flybits.concierge.enums.ContentStyle
 import com.flybits.flybitscoreconcierge.conciergeidps.connect
 import com.flybits.flybitscoreconcierge.idps.AnonymousConciergeIDP
+import kotlin.math.log
 
 fun Context.getActivity(): AppCompatActivity? = when (this) {
     is AppCompatActivity -> this
@@ -66,7 +68,10 @@ class MainActivity : AppCompatActivity() {
         setContent {
             Concierge5ComposeTheme {
                 // A surface container using the 'background' color from the theme
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
                     Greeting("Android")
                 }
             }
@@ -80,8 +85,8 @@ fun Greeting(name: String) {
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(
-                    available: Offset,
-                    source: NestedScrollSource
+                available: Offset,
+                source: NestedScrollSource
             ): Offset {
                 return Offset.Zero
             }
@@ -89,11 +94,11 @@ fun Greeting(name: String) {
     }
 
     Column(
-            modifier = Modifier
-                    .background(Color.LightGray)
-                    .size(100.dp)
-                    .nestedScroll(nestedScrollConnection)
-                    .verticalScroll(rememberScrollState())
+        modifier = Modifier
+            .background(Color.LightGray)
+            .size(100.dp)
+            .nestedScroll(nestedScrollConnection)
+            .verticalScroll(rememberScrollState())
     ) {
         val context = LocalContext.current
         val activity = context.getActivity()
@@ -147,16 +152,19 @@ fun Greeting(name: String) {
             /***
              * Example to display a C5 view
              */
-            FragmentContainer(modifier = Modifier.height(300.dp), fragmentManager = fragmentManager, commit = {
-                add(it, C5Fragment(context))
-            })
+            FragmentContainer(
+                modifier = Modifier.height(300.dp),
+                fragmentManager = fragmentManager,
+                commit = {
+                    add(it, C5Fragment(context), "conciergefragment")
+                })
         }
 
 //        repeat(100) {
 
-            Text(stringResource(id = R.string.aLongText), modifier = Modifier.padding(2.dp))
-            Text(stringResource(id = R.string.aLongText), modifier = Modifier.padding(2.dp))
-            Text(stringResource(id = R.string.aLongText), modifier = Modifier.padding(2.dp))
+        Text(stringResource(id = R.string.aLongText), modifier = Modifier.padding(2.dp))
+        Text(stringResource(id = R.string.aLongText), modifier = Modifier.padding(2.dp))
+        Text(stringResource(id = R.string.aLongText), modifier = Modifier.padding(2.dp))
 //        }
 
     }
@@ -166,10 +174,10 @@ fun Greeting(name: String) {
 @Composable
 private fun ScrollBoxes() {
     Column(
-            modifier = Modifier
-                    .background(Color.LightGray)
-                    .size(100.dp)
-                    .verticalScroll(rememberScrollState())
+        modifier = Modifier
+            .background(Color.LightGray)
+            .size(100.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         repeat(10) {
             Text("Item $it", modifier = Modifier.padding(2.dp))
@@ -181,58 +189,100 @@ private fun ScrollBoxes() {
  * Display a fragment into a Compose
  */
 @Composable
-fun FragmentContainer(modifier: Modifier = Modifier, fragmentManager: FragmentManager,
-        commit: FragmentTransaction.(containerId: Int) -> Unit) {
+fun FragmentContainer(
+    modifier: Modifier = Modifier, fragmentManager: FragmentManager,
+    commit: FragmentTransaction.(containerId: Int) -> Unit
+) {
     val containerId by rememberSaveable { mutableStateOf(View.generateViewId()) }
     var initialized by rememberSaveable { mutableStateOf(false) }
+
     AndroidView(modifier = modifier, factory = { context ->
         FragmentContainerView(context).apply { id = containerId }
-    }, update = { view ->
-        if (!initialized) {
-            fragmentManager.commit { commit(view.id) }
-            initialized = true
-        } else {
-            fragmentManager.onContainerAvailable(view)
+//        FragmentContainerView(context).apply { id = View.generateViewId() }
+    }, onRelease = {
+
+        fragmentManager.findFragmentByTag("conciergefragment")?.let { fragment ->
+            fragmentManager.commitNow(true) {
+                Log.e("test315", "remove the fragment")
+                remove(fragment)
+            }
         }
+
+    }, update = { view ->
+//
+        fragmentManager.commit {
+            Log.e("test315", "add the fragment")
+
+            commit(view.id)
+        }
+
+//        if (!initialized) {
+//            fragmentManager.commit { commit(view.id) }
+//            initialized = true
+//        } else {
+//            fragmentManager.onContainerAvailable(view)
+//        }
     })
 }
 
 /** Access to package-private method in FragmentManager through reflection */
 private fun FragmentManager.onContainerAvailable(view: FragmentContainerView) {
-    val method = FragmentManager::class.java.getDeclaredMethod("onContainerAvailable", FragmentContainerView::class.java)
+    val method = FragmentManager::class.java.getDeclaredMethod(
+        "onContainerAvailable",
+        FragmentContainerView::class.java
+    )
     method.isAccessible = true
     method.invoke(this, view)
 }
 
 fun c4Banner(applicationContext: Context): Fragment {
-    return Concierge.fragment(applicationContext, Container.None, null, arrayListOf(ConciergeOptions.Horizontal, ConciergeOptions.Style(ContentStyle.BANNER)))
+    return Concierge.fragment(
+        applicationContext,
+        Container.None,
+        null,
+        arrayListOf(ConciergeOptions.Horizontal, ConciergeOptions.Style(ContentStyle.BANNER))
+    )
 }
 
 fun C4Expose(applicationContext: Context): Fragment {
-    return Concierge.fragment(applicationContext, Container.Expose, null, arrayListOf(ConciergeOptions.ExposeTitle
-    ("expose title"), ConciergeOptions
-            .ExposeCallToAction("call to action")))
+    return Concierge.fragment(
+        applicationContext, Container.Expose, null, arrayListOf(
+            ConciergeOptions.ExposeTitle
+                ("expose title"), ConciergeOptions
+                .ExposeCallToAction("call to action")
+        )
+    )
 }
 
 fun c4Fragment(applicationContext: Context): Fragment {
-    return Concierge.fragment(applicationContext, Container.Categories, null,
+    return Concierge.fragment(
+        applicationContext, Container.Categories, null,
 //            arrayListOf(ConciergeOptions.DisplayNavigation(),
 //                    ConciergeOptions.Settings,
 //                    ConciergeOptions.Notifications)
-            arrayListOf())
+        arrayListOf()
+    )
 }
 
 fun C5Fragment(applicationContext: Context): Fragment {
-    return Concierge.fragment(applicationContext,
-            Container.Configured,
+    return Concierge.fragment(
+        applicationContext,
+        Container.Configured,
 //            arrayListOf(ConciergeParams.ZonesFilter(Concierge.zonesConfiguration(applicationContext, listOf("carousel")
 //            ))),
 
-            arrayListOf(ConciergeParams.ZonesFilter(Concierge.zonesConfiguration(applicationContext, listOf("carousel")
-            ))),
-            arrayListOf(ConciergeOptions.DisplayNavigation("c5 content showing here"),
-                    ConciergeOptions.Settings,
-                    ConciergeOptions.Notifications)
+        arrayListOf(
+            ConciergeParams.ZonesFilter(
+                Concierge.zonesConfiguration(
+                    applicationContext, listOf("carousel")
+                )
+            )
+        ),
+        arrayListOf(
+            ConciergeOptions.DisplayNavigation("c5 content showing here"),
+            ConciergeOptions.Settings,
+            ConciergeOptions.Notifications
+        )
     )
 }
 
@@ -241,24 +291,27 @@ fun init(context: Context) {
 
 
     val configurationBuilder = FlybitsConciergeConfiguration.Builder(context)
-            .setProjectId("81A5A577-E2FC-4B68-9977-04C22B09B1F9")
-            .setGatewayUrl("https://api.tdunmndb289.flybits.com")
-            .setWebService("https://static-files-concierge.tdunmndb289.flybits.com/latest")
-            .build()
+        .setProjectId("81A5A577-E2FC-4B68-9977-04C22B09B1F9")
+        .setGatewayUrl("https://api.tdunmndb289.flybits.com")
+        .setWebService("https://static-files-concierge.tdunmndb289.flybits.com/latest")
+        .build()
 
     Concierge.configure(configurationBuilder, emptyList(), context)
 }
 
 fun connect(context: Context) {
-    Concierge.connect(context, AnonymousConciergeIDP(), basicResultCallback = object : BasicResultCallback {
-        override fun onException(exception: FlybitsException) {
-            println("test315 onException")
-        }
+    Concierge.connect(
+        context,
+        AnonymousConciergeIDP(),
+        basicResultCallback = object : BasicResultCallback {
+            override fun onException(exception: FlybitsException) {
+                println("test315 onException")
+            }
 
-        override fun onSuccess() {
-            println("test315 onSucess")
-        }
-    })
+            override fun onSuccess() {
+                println("test315 onSucess")
+            }
+        })
 }
 
 @Preview(showBackground = true)
