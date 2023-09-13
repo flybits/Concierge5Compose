@@ -195,20 +195,23 @@ fun handleOnReceive(context: Context, intent: Intent?) {
     actionableLink?.let {
         context.let { ctx ->
             Concierge.handleActionableLink(
-                ctx,
-                Uri.parse(actionableLink),
-                conciergeOptions = arrayListOf(ConciergeOptions.Identifier("123")),
-                requestEvents = ConciergeParams.RequestEvents()/*,
+                    ctx,
+                    Uri.parse(actionableLink),
+                    conciergeOptions = arrayListOf(ConciergeOptions.Identifier("123")),
+                    requestEvents = ConciergeParams.RequestEvents()/*,
                     ConciergeTheme.FileName("custom_theming1.json")*/)
-                ?.let { fragment ->
-                    context.getActivity()?.supportFragmentManager?.let {fm ->
-                        FragmentContainer(modifier = Modifier, fragmentManager = fm, commit = {
-                            add(it, fragment)
-                        })
+                    ?.let { fragment ->
+                        // Here is the change
+                        context.getActivity()!!.setContent {
+                            context.getActivity()?.supportFragmentManager?.let { fm ->
+                                FragmentContainer(modifier = Modifier, fragmentManager = fm, commit = {
+                                    add(it, fragment)
+                                })
+                            }
+                        }
                     }
-                } ?: run {
-                Log.i("", "Returns null")
-            }
+        } ?: run {
+            Log.i("", "Returns null")
         }
     }
 }
