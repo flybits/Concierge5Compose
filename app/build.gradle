@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace 'com.flybit.concierge5compose'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.flybit.concierge5compose"
         minSdk 26
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
@@ -37,7 +37,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.2.0'
+        kotlinCompilerExtensionVersion '1.5.1'
     }
     packagingOptions {
         resources {
@@ -48,7 +48,7 @@ android {
 
 dependencies {
 //    implementation 'com.flybits.android:concierge:6.0.0-alpha4'
-    implementation 'com.flybits.android:concierge:6.0.0-alpha18'
+    implementation 'com.flybits.android:concierge:5.0.7'
 //    implementation 'com.flybits.android:concierge:4.5.0'
 //    implementation 'com.flybits.android:context:4.5.0'
 //    implementation 'com.flybits.android:kernel:4.5.0'
