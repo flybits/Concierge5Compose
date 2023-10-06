@@ -1,11 +1,18 @@
 package com.flybit.concierge5compose
 
+//import com.flybits.concierge.Concierge
+//import com.flybits.concierge.FlybitsConciergeConfiguration
+//import com.flybits.concierge.enums.ConciergeOptions
+//import com.flybits.concierge.enums.ConciergeParams
+//import com.flybits.concierge.enums.Container
+//import com.flybits.concierge.enums.ContentStyle
+//import com.flybits.flybitscoreconcierge.conciergeidps.connect
+//import com.flybits.flybitscoreconcierge.idps.AnonymousConciergeIDP
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
@@ -31,27 +38,20 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.fragment.app.*
 import com.flybit.concierge5compose.ui.theme.Concierge5ComposeTheme
+import com.flybits.android.kernel.KernelScope
+import com.flybits.android.push.PushScope
 import com.flybits.commons.library.api.FlybitsManager
+import com.flybits.commons.library.api.idps.AnonymousIDP
 import com.flybits.commons.library.api.results.callbacks.BasicResultCallback
 import com.flybits.commons.library.exceptions.FlybitsException
 import com.flybits.commons.library.logging.VerbosityLevel
-import com.flybits.concierge.Concierge
-import com.flybits.concierge.FlybitsConciergeConfiguration
-import com.flybits.concierge.enums.ConciergeOptions
-import com.flybits.concierge.enums.ConciergeParams
-import com.flybits.concierge.enums.Container
-import com.flybits.concierge.enums.ContentStyle
-import com.flybits.flybitscoreconcierge.conciergeidps.connect
-import com.flybits.flybitscoreconcierge.idps.AnonymousConciergeIDP
-import kotlin.math.log
+import com.flybits.context.ContextScope
 
 fun Context.getActivity(): AppCompatActivity? = when (this) {
     is AppCompatActivity -> this
@@ -59,8 +59,9 @@ fun Context.getActivity(): AppCompatActivity? = when (this) {
     is ComponentActivity -> baseContext.getActivity()
     else -> null
 }
-
+lateinit var flybitsManager: FlybitsManager
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val context = this
@@ -95,10 +96,10 @@ fun Greeting(name: String) {
 
     Column(
         modifier = Modifier
-            .background(Color.LightGray)
-            .size(100.dp)
-            .nestedScroll(nestedScrollConnection)
-            .verticalScroll(rememberScrollState())
+                .background(Color.LightGray)
+                .size(100.dp)
+                .nestedScroll(nestedScrollConnection)
+                .verticalScroll(rememberScrollState())
     ) {
         val context = LocalContext.current
         val activity = context.getActivity()
@@ -112,15 +113,7 @@ fun Greeting(name: String) {
                 Text(text = "Connect to Flybits")
             }
             Button(onClick = {
-                Concierge.disconnect(context, object : BasicResultCallback {
-                    override fun onException(exception: FlybitsException) {
-                        println("test315 disconnected onSuccess")
-                    }
-
-                    override fun onSuccess() {
-                        println("test315 disconnected onSuccess")
-                    }
-                })
+                flybitsManager.disconnect(resultCallback)
             }) {
                 Text(text = "disconnect from Flybit")
             }
@@ -152,12 +145,12 @@ fun Greeting(name: String) {
             /***
              * Example to display a C5 view
              */
-            FragmentContainer(
-                modifier = Modifier.height(300.dp),
-                fragmentManager = fragmentManager,
-                commit = {
-                    add(it, C5Fragment(context), "conciergefragment")
-                })
+//            FragmentContainer(
+//                modifier = Modifier.height(300.dp),
+//                fragmentManager = fragmentManager,
+//                commit = {
+//                    add(it, C5Fragment(context), "conciergefragment")
+//                })
         }
 
 //        repeat(100) {
@@ -175,9 +168,9 @@ fun Greeting(name: String) {
 private fun ScrollBoxes() {
     Column(
         modifier = Modifier
-            .background(Color.LightGray)
-            .size(100.dp)
-            .verticalScroll(rememberScrollState())
+                .background(Color.LightGray)
+                .size(100.dp)
+                .verticalScroll(rememberScrollState())
     ) {
         repeat(10) {
             Text("Item $it", modifier = Modifier.padding(2.dp))
@@ -234,84 +227,83 @@ private fun FragmentManager.onContainerAvailable(view: FragmentContainerView) {
     method.isAccessible = true
     method.invoke(this, view)
 }
-
-fun c4Banner(applicationContext: Context): Fragment {
-    return Concierge.fragment(
-        applicationContext,
-        Container.None,
-        null,
-        arrayListOf(ConciergeOptions.Horizontal, ConciergeOptions.Style(ContentStyle.BANNER))
-    )
-}
-
-fun C4Expose(applicationContext: Context): Fragment {
-    return Concierge.fragment(
-        applicationContext, Container.Expose, null, arrayListOf(
-            ConciergeOptions.ExposeTitle
-                ("expose title"), ConciergeOptions
-                .ExposeCallToAction("call to action")
-        )
-    )
-}
-
-fun c4Fragment(applicationContext: Context): Fragment {
-    return Concierge.fragment(
-        applicationContext, Container.Categories, null,
-//            arrayListOf(ConciergeOptions.DisplayNavigation(),
-//                    ConciergeOptions.Settings,
-//                    ConciergeOptions.Notifications)
-        arrayListOf()
-    )
-}
-
-fun C5Fragment(applicationContext: Context): Fragment {
-    return Concierge.fragment(
-        applicationContext,
-        Container.Configured,
-//            arrayListOf(ConciergeParams.ZonesFilter(Concierge.zonesConfiguration(applicationContext, listOf("carousel")
-//            ))),
-
-        arrayListOf(
-            ConciergeParams.ZonesFilter(
-                Concierge.zonesConfiguration(
-                    applicationContext, listOf("carousel")
-                )
-            )
-        ),
-        arrayListOf(
-            ConciergeOptions.DisplayNavigation("c5 content showing here"),
-            ConciergeOptions.Settings,
-            ConciergeOptions.Notifications
-        )
-    )
-}
+//
+//fun c4Banner(applicationContext: Context): Fragment {
+//    return Concierge.fragment(
+//        applicationContext,
+//        Container.None,
+//        null,
+//        arrayListOf(ConciergeOptions.Horizontal, ConciergeOptions.Style(ContentStyle.BANNER))
+//    )
+//}
+//
+//fun C4Expose(applicationContext: Context): Fragment {
+//    return Concierge.fragment(
+//        applicationContext, Container.Expose, null, arrayListOf(
+//            ConciergeOptions.ExposeTitle
+//                ("expose title"), ConciergeOptions
+//                .ExposeCallToAction("call to action")
+//        )
+//    )
+//}
+//
+//fun c4Fragment(applicationContext: Context): Fragment {
+//    return Concierge.fragment(
+//        applicationContext, Container.Categories, null,
+////            arrayListOf(ConciergeOptions.DisplayNavigation(),
+////                    ConciergeOptions.Settings,
+////                    ConciergeOptions.Notifications)
+//        arrayListOf()
+//    )
+//}
+//
+//fun C5Fragment(applicationContext: Context): Fragment {
+//    return Concierge.fragment(
+//        applicationContext,
+//        Container.Configured,
+////            arrayListOf(ConciergeParams.ZonesFilter(Concierge.zonesConfiguration(applicationContext, listOf("carousel")
+////            ))),
+//
+//        arrayListOf(
+//            ConciergeParams.ZonesFilter(
+//                Concierge.zonesConfiguration(
+//                    applicationContext, listOf("carousel")
+//                )
+//            )
+//        ),
+//        arrayListOf(
+//            ConciergeOptions.DisplayNavigation("c5 content showing here"),
+//            ConciergeOptions.Settings,
+//            ConciergeOptions.Notifications
+//        )
+//    )
+//}
 
 fun init(context: Context) {
-    Concierge.setLoggingVerbosity(VerbosityLevel.ALL)
+    FlybitsManager.setLoggingVerbosity(VerbosityLevel.ALL)
 
-
-    val configurationBuilder = FlybitsConciergeConfiguration.Builder(context)
-        .setProjectId("81A5A577-E2FC-4B68-9977-04C22B09B1F9")
-        .setGatewayUrl("https://api.tdunmndb289.flybits.com")
-        .setWebService("https://static-files-concierge.tdunmndb289.flybits.com/latest")
-        .build()
-
-    Concierge.configure(configurationBuilder, emptyList(), context)
+    flybitsManager = FlybitsManager.Builder(context)
+            .setProjectId("F40B1DAA-565C-4652-9C92-700873D0598E")
+            .setGatewayURL("https://api.demo.flybits.com")
+            .build()
 }
+val resultCallback = object : BasicResultCallback {
+    override fun onSuccess() {
+        Log.e("test315", "onSuccess: ")
+    }
 
+    override fun onException(exception: FlybitsException) {
+        Log.e("test315", "onException: ")
+
+    }
+}
 fun connect(context: Context) {
-    Concierge.connect(
-        context,
-        AnonymousConciergeIDP(),
-        basicResultCallback = object : BasicResultCallback {
-            override fun onException(exception: FlybitsException) {
-                println("test315 onException")
-            }
-
-            override fun onSuccess() {
-                println("test315 onSucess")
-            }
-        })
+    flybitsManager.connect(
+            AnonymousIDP(), resultCallback
+    )
+        FlybitsManager.addScope(PushScope.get(context))
+        FlybitsManager.addScope(ContextScope(context))
+        FlybitsManager.addScope(KernelScope.get(context))
 }
 
 @Preview(showBackground = true)
